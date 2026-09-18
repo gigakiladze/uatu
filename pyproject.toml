@@ -1,0 +1,38 @@
+[project]
+name = "uatu"
+version = "0.1.0"
+description = "A project-agnostic observability system: learns a codebase, watches its logs, reports real problems."
+readme = "README.md"
+authors = [
+    { name = "gigakiladze", email = "kiladzegiga@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.141.1",
+    "httpx>=0.28.1",
+    "langgraph>=1.2.11",
+    "langsmith>=0.12.6",
+    "pydantic-settings>=2.15.0",
+    "pymongo>=4.17.0",
+    "python-dotenv>=1.2.3",
+    "pyyaml>=6.0.3",
+    "qdrant-client>=1.19.0",
+    "sentence-transformers>=6.0.0",
+    "uvicorn>=0.52.4",
+]
+
+[project.scripts]
+uatu = "uatu:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "grandalf>=0.8",
+    "ipykernel>=7.3.0",
+    "ipywidgets>=8.1.9",
+    "jupyterlab>=4.6.3",
+    "nbstripout>=0.9.1",
+]

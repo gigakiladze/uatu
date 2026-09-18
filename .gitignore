@@ -1,0 +1,25 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+
+notebooks/.ipynb_checkpoints/
+
+.claude/
+.ipynb_checkpoints/
+Untitled*.ipynb
+
+# Tooling / scratch
+.claude/
+.ipynb_checkpoints/
+Untitled*.ipynb
+
+# Private working notes
+PROJECT.md

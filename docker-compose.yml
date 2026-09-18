@@ -1,0 +1,38 @@
+services:
+  mongo:
+    # Pinned to 7.x: MongoDB 8.x refuses to start on Linux kernel >= 6.19
+    # (SERVER-121912), and Docker Desktop's VM kernel is 7.0.12-linuxkit.
+    # Revisit once MongoDB ships a fix.
+    image: mongo:7.0
+    container_name: obs-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: obs
+      MONGO_INITDB_ROOT_PASSWORD: obs_local_dev
+      MONGO_INITDB_DATABASE: observer
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  qdrant:
+    image: qdrant/qdrant:v1.19.0
+    container_name: obs-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"   # REST + web dashboard
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    # No healthcheck: the Qdrant image ships no shell or curl, so there is
+    # nothing to run a check with. Verify from Python instead.
+
+volumes:
+  mongo_data:
+  qdrant_data:
