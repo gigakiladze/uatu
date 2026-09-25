@@ -73,9 +73,31 @@ class MongoRepository(Generic[T]):
     def exists(self, _id: str) -> bool:
         return self.col.count_documents({"_id": self._key(_id)}, limit=1) == 1
 
+    def find_one(self, filter: dict) -> T | None:
+        """First document matching an arbitrary filter, as a model."""
+        doc = self.col.find_one(filter)
+        return self.model.model_validate(doc) if doc else None
+
     # ---------- helpers ----------
 
     @staticmethod
     def _key(_id: str) -> ObjectId | str:
         """Mongo-generated ids are ObjectId; deterministic uuid5 ids stay strings."""
         return ObjectId(_id) if ObjectId.is_valid(_id) else _id
+        
+    def upsert_by(self, filter: dict, model: T) -> bool:
+     now = datetime.now(timezone.utc)
+     doc = model.model_dump(mode="json", exclude=_META)
+     result = self.col.update_one(
+        filter,                                    # ← was {"_id": self._key(_id)}
+        {
+            "$set": {**doc, "updated_at": now},
+            "$setOnInsert": {"created_at": now},
+        },
+        upsert=True,
+    )
+     return result.upserted_id is not None
+
+
+
+

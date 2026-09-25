@@ -29,3 +29,5 @@ def extract(raw_text: str) -> list[KnowledgeItemCreate]:
     prompt = load("extract")
     raw = get_llm().complete_json(prompt.system, raw_text, prompt.schema)
     return [KnowledgeItemCreate(**i) for i in raw["items"]]
+
+

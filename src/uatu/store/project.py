@@ -1,4 +1,3 @@
-from uatu.libs.config import settings
 from uatu.libs.repository import MongoRepository
 from uatu.models import Project
 

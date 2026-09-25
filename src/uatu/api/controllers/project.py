@@ -7,7 +7,7 @@ from uatu.services.project import getProjectByName
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 
-@router.post("/")
+@router.post("")
 def create_project(project: Project) -> dict:
     isProjectExists = getProjectByName(project.name)
     if isProjectExists:

@@ -33,9 +33,10 @@ def build_prompt(error: str, project_id: str, k_limit: int = 3, f_limit: int = 8
 
     parts.append("\nCODE FILES (ranked by relevance):")
     if files:
-        for score, f in files:
-            summary = f" — {f.summary}" if f.summary else ""
-            parts.append(f"- {f.path} ({f.language}, relevance {score:.2f}){summary}")
+        for score, p in files:
+            parts.append(
+                f"- {p.repo_slug}/{p.path} [{p.kind}] {p.text} (relevance {score:.2f})"
+            )
     else:
         parts.append("- (none found)")
 

@@ -15,16 +15,19 @@ class Settings(BaseSettings):
     mongo_tz_aware: bool = True
     embedding_model: str = "all-MiniLM-L6-v2"
     embedding_dim: int = 384
-    github_token: SecretStr | None = None
 
     llm_provider: str = "ollama"
     ollama_url: str = "http://localhost:11434"
     ollama_model: str = "qwen2.5-coder:14b"
 
+    encryption_key: SecretStr 
+
     LANGSMITH_TRACING: bool = False
     LANGSMITH_API_KEY: SecretStr | None = None
     LANGSMITH_PROJECT: str | None = None
     LANGSMITH_ENDPOINT: str | None = None
+
+
 
 load_dotenv() 
 

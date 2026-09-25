@@ -3,7 +3,7 @@ from typing import Generic, TypeVar
 from pydantic import BaseModel
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
-    Distance, FieldCondition, Filter, MatchValue, PointStruct, VectorParams,
+    Distance, FieldCondition, Filter, FilterSelector, MatchValue, PointStruct, VectorParams,
 )
 
 from uatu.libs.qdrant_service import get_client
@@ -91,3 +91,23 @@ class QdrantRepository(Generic[T]):
                 for k, v in where.items()
             ]
         )
+    
+    def delete_where(self, must: dict, must_not: dict | None = None) -> None:
+        """Delete every point matching `must` and not matching `must_not`."""
+        self.client.delete(
+            self.name,
+            points_selector=FilterSelector(
+                filter=Filter(
+                    must=[
+                        FieldCondition(key=k, match=MatchValue(value=v))
+                        for k, v in must.items()
+                    ],
+                    must_not=[
+                        FieldCondition(key=k, match=MatchValue(value=v))
+                        for k, v in (must_not or {}).items()
+                    ],
+                )
+            ),
+        )
+
+
