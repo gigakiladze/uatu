@@ -1,6 +1,5 @@
 import httpx
 
-from uatu.libs.config import settings
 
 from pathlib import Path
 
@@ -25,21 +24,21 @@ CODE_EXTENSIONS = {
 }
 
 
-def _client() -> httpx.Client:
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    if settings.github_token:
-        headers["Authorization"] = f"Bearer {settings.github_token.get_secret_value()}"
-        return httpx.Client(
-        base_url=API, headers=headers, timeout=30.0, follow_redirects=True
+def _client(token: str) -> httpx.Client:
+    return httpx.Client(
+        base_url=API,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": f"Bearer {token}",
+        },
+        timeout=30.0,
+        follow_redirects=True,
     )
 
 
-def head_sha(owner: str, repo: str, branch: str | None = None) -> str:
-    """Current commit on the branch. Defaults to the repo's default branch."""
-    with _client() as c:
+def head_sha(owner: str, repo: str, token: str, branch: str | None = None) -> str:
+    with _client(token) as c:
         if branch is None:
             r = c.get(f"/repos/{owner}/{repo}")
             r.raise_for_status()
@@ -49,9 +48,9 @@ def head_sha(owner: str, repo: str, branch: str | None = None) -> str:
         return r.json()["sha"]
 
 
-def list_tree(owner: str, repo: str, sha: str) -> list[dict]:
+def list_tree(owner: str, repo: str, sha: str, token: str) -> list[dict]:
     """Every blob in the repo at this commit: path, size, blob sha. One request."""
-    with _client() as c:
+    with _client(token) as c:
         r = c.get(f"/repos/{owner}/{repo}/git/trees/{sha}", params={"recursive": "1"})
         r.raise_for_status()
         data = r.json()
@@ -66,9 +65,9 @@ def list_tree(owner: str, repo: str, sha: str) -> list[dict]:
     ]
 
 
-def read_file(owner: str, repo: str, path: str, sha: str) -> str:
+def read_file(owner: str, repo: str, path: str, sha: str, token: str) -> str:
     """Raw file contents at an exact commit. Never at HEAD."""
-    with _client() as c:
+    with _client(token) as c:
         r = c.get(
             f"/repos/{owner}/{repo}/contents/{path}",
             params={"ref": sha},

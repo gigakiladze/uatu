@@ -2,10 +2,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from uatu.api.controllers import investigate, knowledge, project
+from uatu.api.controllers import investigate, knowledge, project, credential
 from uatu.libs import db_service, qdrant_service
 from uatu.libs.embedder import get_model
-from uatu.store import knowledge as knowledge_store
+from uatu.store import  knowledge as knowledge_store
 from uatu.api.controllers import repo
 from uatu.store import repo as repo_store
 from uatu.store import code_file as code_file_store
@@ -24,6 +24,7 @@ app.include_router(knowledge.router)
 app.include_router(repo.router)
 app.include_router(investigate.router)
 app.include_router(project.router)
+app.include_router(credential.router)
 repo_store.ensure_indexes()
 code_file_store.ensure_indexes()
 code_file_store.ensure_collection()
