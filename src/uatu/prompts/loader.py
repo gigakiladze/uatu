@@ -13,7 +13,7 @@ class Prompt:
     name: str
     version: int
     system: str
-    schema: dict
+    schema: dict | None   # None when the caller owns the contract
     model: dict
 
 
@@ -33,7 +33,7 @@ def load(name: str) -> Prompt:
     front, body = _split(path.read_text(encoding="utf-8"))
     meta = yaml.safe_load(front) or {}
 
-    missing = {"name", "version", "outputs"} - meta.keys()
+    missing = {"name", "version"} - meta.keys()
     if missing:
         raise ValueError(f"{path.name} frontmatter missing: {sorted(missing)}")
     if not body:
@@ -43,6 +43,6 @@ def load(name: str) -> Prompt:
         name=meta["name"],
         version=meta["version"],
         system=body,
-        schema=meta["outputs"],
+        schema=meta.get("outputs"),
         model=meta.get("model", {}),
     )

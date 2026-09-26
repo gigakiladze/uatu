@@ -1,20 +1,10 @@
 from uatu.libs.embedder import embed
 from uatu.libs.llm import get_llm
 from uatu.models import Diagnosis
+from uatu.prompts import load
 from uatu.store import code_file
 from uatu.store import knowledge as knowledge_store
 
-SYSTEM = """You are a senior engineer diagnosing a production error.
-
-You are given an error, a description of the project, and a list of files from
-its codebase. Use ONLY that context.
-
-Rules:
-- If the context does not explain the error, set confidence to "low" and say so
-  in the summary. Do not speculate beyond what you were given.
-- Every cause must cite specific evidence from the context.
-- suspect_files may only contain paths that appear in the CODE FILES section.
-- Be concrete. "Check the logs" is not a suggestion."""
 
 
 def build_prompt(error: str, project_id: str, k_limit: int = 3, f_limit: int = 8) -> str:
@@ -44,6 +34,7 @@ def build_prompt(error: str, project_id: str, k_limit: int = 3, f_limit: int = 8
 
 
 def investigate(error: str, project_id: str) -> Diagnosis:
-    prompt = build_prompt(error, project_id)
-    raw = get_llm().complete_json(SYSTEM, prompt, Diagnosis.model_json_schema())
+    prompt = load("investigate")
+    user = build_prompt(error, project_id)
+    raw = get_llm().complete_json(prompt.system, user, Diagnosis.model_json_schema())
     return Diagnosis.model_validate(raw)
