@@ -22,6 +22,10 @@ class Settings(BaseSettings):
 
     encryption_key: SecretStr 
 
+    uatu_dev_project_id: str
+
+
+
     LANGSMITH_TRACING: bool = False
     LANGSMITH_API_KEY: SecretStr | None = None
     LANGSMITH_PROJECT: str | None = None

@@ -9,6 +9,7 @@ from uatu.services import investigate as investigate_service
 from uatu.store import code_file as code_store
 from uatu.store import knowledge as knowledge_store
 from uatu.store import repo as repo_store
+from uatu.libs.config import settings
 
 
 MAX_FILE_CHARS = 6_000
@@ -16,11 +17,23 @@ SEARCH_LIMIT = 6
 
 
 def _project_id(config: RunnableConfig) -> str:
+    """Prefer the run config. Fall back to the dev setting for local UIs only.
 
+    The config path is the one that matters: in production project_id comes from
+    the request path, so the model can never reach another project's data.
+    agent-chat-ui cannot send custom configurable keys, hence the dev fallback.
+    """
     project_id = (config.get("configurable") or {}).get("project_id")
-    if not project_id:
-        raise RuntimeError("project_id missing from config['configurable']")
-    return project_id
+    if project_id:
+        return project_id
+
+    if settings.uatu_dev_project_id:
+        return settings.uatu_dev_project_id
+
+    raise RuntimeError(
+        "no project_id: pass it in config['configurable'] or set"
+        "UATU_DEV_PROJECT_ID for local dev"
+    )
 
 
 def _find_repo(project_id: str, slug: str) -> Repo | None:
