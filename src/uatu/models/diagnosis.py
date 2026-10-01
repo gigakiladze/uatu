@@ -13,7 +13,7 @@ class Cause(BaseModel):
 class Diagnosis(BaseModel):
     summary: str = Field(description="One line, suitable for a Slack notification")
     affected_component: str | None = Field(
-        description="Business-level feature or integration, e.g. 'Flit payments'"
+        description="Feature or integration named in the project's own vocabulary"
     )
     suspect_files: list[str] = Field(description="Paths from the provided code context")
     causes: list[Cause] = Field(description="Ranked hypotheses of what went wrong")
