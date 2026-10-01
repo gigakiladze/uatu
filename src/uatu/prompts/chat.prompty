@@ -2,7 +2,7 @@
 name: chat
 version: 1
 model:
-  name: qwen2.5-coder:14b
+  name: qwen3:14b
   parameters:
     temperature: 0
 ---

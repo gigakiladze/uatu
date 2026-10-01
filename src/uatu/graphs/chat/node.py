@@ -13,18 +13,35 @@ BY_NAME = {t.name: t for t in TOOLS}
 
 
 @cache
-def _llm() -> ChatOllama:
-    
+def _llm(model: str, temperature: float) -> ChatOllama:
+    """Cached per (model, temperature).
+
+    Keyed on the arguments rather than nothing, so changing the model in
+    chat.prompty hands back a new client instead of reusing the old one.
+    Rebuilding per request would reopen the HTTP pool every turn.
+    """
     return ChatOllama(
-        model=settings.ollama_model,
+        model=model,
         base_url=settings.ollama_url,
-        temperature=0,
+        temperature=temperature,
     )
 
 
 def agent(state: ChatState, config: RunnableConfig) -> dict:
+    """Decide: answer, or call tools.
+
+    The model comes from the prompty's `model:` block, not from
+    settings.ollama_model. The agent needs a model trained for tool calling,
+    while the deterministic chains want a code model — that choice belongs
+    next to the prompt it is made for.
+    """
     prompt = load("chat")
-    llm = _llm().bind_tools(TOOLS)
+    spec = prompt.model
+
+    llm = _llm(
+        spec.get("name", settings.ollama_model),
+        spec.get("parameters", {}).get("temperature", 0),
+    ).bind_tools(TOOLS)
 
     messages = [SystemMessage(content=prompt.system)] + state["messages"]
     return {"messages": [llm.invoke(messages, config=config)]}
